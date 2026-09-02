@@ -186,7 +186,8 @@ function normalizar(texto){
 /* ---------- llamada JSONP ---------- */
 function llamar(params, alVolver){
   var cb='cb'+(++nCb), s=document.createElement('script'), listo=false;
-  var t=setTimeout(function(){ terminar({estado:'red'}); },12000);
+  // Apps Script arranca en frío: la primera llamada puede tardar mucho
+  var t=setTimeout(function(){ terminar({estado:'red',causa:'tardó demasiado'}); },30000);
 
   function terminar(r){
     if(listo) return; listo=true;
@@ -196,7 +197,7 @@ function llamar(params, alVolver){
     alVolver(r);
   }
   window[cb]=terminar;
-  s.onerror=function(){ terminar({estado:'red'}); };
+  s.onerror=function(){ terminar({estado:'red',causa:'no cargó el script'}); };
 
   var q='?jsonp='+cb+'&k='+encodeURIComponent(CLAVE);
   for(var k in params) q+='&'+k+'='+encodeURIComponent(params[k]);
@@ -205,23 +206,35 @@ function llamar(params, alVolver){
 }
 
 /* ---------- validación ---------- */
-function validar(codigo){
+function validar(codigo, reintento){
   if(ocupado||!codigo) return;
   ocupado=true;
-  $('conexion').textContent='ENVIANDO';
+  $('conexion').textContent = reintento ? 'REINTENTANDO' : 'ENVIANDO';
   llamar({c:codigo}, function(r){
     ocupado=false;
     if(r.estado==='red'){
+      // Un solo reintento: cubre el arranque en frío de Apps Script
+      if(!reintento){ validar(codigo, true); return; }
       $('conexion').textContent='SIN SEÑAL';
       registrarFallo(codigo);
       mostrar({estado:'malo',titulo:'SIN SEÑAL',
-               detalle:'Anotar el nombre en papel',extra:codigo});
+               detalle:'Toca para reintentar',
+               extra:codigo+' · '+(r.causa||''),
+               reintentar:codigo});
       return;
     }
     $('conexion').textContent='LISTO';
     mostrar(r);
     if(r.estado==='ok') pedirResumen();
   });
+}
+
+function quitarFallo(codigo){
+  var i=fallidos.indexOf(codigo);
+  if(i>-1) fallidos.splice(i,1);
+  var d=$('fallidos');
+  if(!fallidos.length){ d.style.display='none'; return; }
+  d.innerHTML='<b>SIN VALIDAR ('+fallidos.length+')</b><br>'+fallidos.join('<br>');
 }
 
 function registrarFallo(codigo){
@@ -240,10 +253,15 @@ function mostrar(r){
     (r.detalle?'<p class="quien">'+r.detalle+'</p>':'')+
     (r.extra?'<p class="nota">'+r.extra+'</p>':'');
   d.classList.add('ver');
+  d.onclick = r.reintentar ? function(){
+    d.classList.remove('ver');
+    quitarFallo(r.reintentar);
+    validar(r.reintentar);
+  } : null;
   try{ navigator.vibrate(r.estado==='ok'?70:[60,70,60]); }catch(e){}
   clearTimeout(mostrar._t);
   mostrar._t=setTimeout(function(){ d.classList.remove('ver'); },
-                        r.estado==='ok'?1300:2600);
+                        r.estado==='ok'?1300:4000);
 }
 
 /* ---------- conteo en vivo ---------- */
@@ -252,6 +270,9 @@ function pedirResumen(){
     if(r.estado==='resumen'){
       $('kDentro').textContent=r.dentro;
       $('kVend').textContent=r.total;
+      $('conexion').textContent='LISTO';
+    } else if(r.estado==='red'){
+      $('conexion').textContent='SIN CONEXIÓN';
     }
   });
 }
@@ -323,7 +344,10 @@ document.addEventListener('visibilitychange',function(){
 
 /* ---------- arranque ---------- */
 window.addEventListener('load',function(){
-  if(URL_APP.indexOf('http')===0) pedirResumen();
+  if(URL_APP.indexOf('http')===0){
+    $('conexion').textContent='CONECTANDO';
+    pedirResumen();
+  }
   else placa('Falta configurar','Abre el archivo y llena URL_APP y CLAVE.');
 });
 </script>
