@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>PUERTA — BLIND</title>
+<!--
+  ══════════════════════════════════════════════════════════════
+  ESCÁNER DE PUERTA — BLIND
+  Se aloja FUERA de Apps Script, en GitHub Pages.
+  ══════════════════════════════════════════════════════════════
+
+  ¿Por qué fuera? En iPhone, Google sirve las páginas de Apps
+  Script dentro de un iframe sin permiso de cámara y Safari la
+  bloquea. En una página propia sí funciona.
+
+  ── YA ESTÁ CONFIGURADO ───────────────────────────────────────
+  URL_APP y CLAVE vienen con los valores reales. No hay que
+  editar nada. El archivo ya se llama index.html.
+
+  ── ANTES DE PUBLICAR ─────────────────────────────────────────
+  En Apps Script, desplegar VERSIÓN NUEVA del Codigo.gs
+  actualizado. Sin eso el escáner carga pero no valida.
+
+  ── PUBLICAR ──────────────────────────────────────────────────
+  1. github.com → New repository → nombre "puerta" → Public
+  2. Add file → Upload files → subir este archivo tal cual
+  3. Settings → Pages → Branch: main / root → Save
+  4. A los dos minutos: https://TU-USUARIO.github.io/puerta/
+
+  ── ADVERTENCIA ───────────────────────────────────────────────
+  La clave queda visible en el código de esta página. El link no
+  puede circular fuera del equipo.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --negro:#0B0B0B; --tinta:#141414; --linea:#2A2A2A;
+    --hueso:#F2F2F0; --tenue:#8A8A87;
+    --ok:#0B7A3B; --alerta:#B8860B; --malo:#B00020;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;background:var(--negro);color:var(--hueso);
+    font-family:'Space Grotesk',-apple-system,Helvetica,sans-serif;
+    overscroll-behavior:none;}
+  body{display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+
+  header{display:flex;align-items:baseline;justify-content:space-between;
+    padding:16px 18px 12px;border-bottom:1px solid var(--linea);}
+  .marca{font-weight:700;font-size:17px;letter-spacing:.34em;}
+  .rol{font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:.26em;color:var(--tenue);}
+
+  .conteo{display:flex;border-bottom:1px solid var(--linea);}
+  .kpi{flex:1;padding:14px 18px;border-right:1px solid var(--linea);}
+  .kpi:last-child{border-right:0;}
+  .kpi b{display:block;font-family:'Space Mono',monospace;
+    font-size:30px;font-weight:700;line-height:1;}
+  .kpi span{display:block;font-family:'Space Mono',monospace;font-size:9px;
+    letter-spacing:.24em;color:var(--tenue);margin-top:7px;}
+
+  .visor{position:relative;flex:1;min-height:250px;background:#000;overflow:hidden;}
+  #lector{width:100%;height:100%;}
+  #lector video{width:100%!important;height:100%!important;object-fit:cover;}
+  .mira{position:absolute;inset:0;pointer-events:none;
+    display:flex;align-items:center;justify-content:center;}
+  .mira i{width:64%;max-width:270px;aspect-ratio:1;position:relative;}
+  .mira i::before,.mira i::after{content:'';position:absolute;
+    width:34px;height:34px;border:2px solid var(--hueso);}
+  .mira i::before{top:0;left:0;border-right:0;border-bottom:0;}
+  .mira i::after{bottom:0;right:0;border-left:0;border-top:0;}
+
+  .placa{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;padding:26px;
+    text-align:center;background:var(--negro);}
+  .placa p{margin:0;font-size:14px;line-height:1.55;color:var(--tenue);max-width:330px;}
+  .placa .cod{font-family:'Space Mono',monospace;font-size:11px;
+    color:#5A5A57;word-break:break-all;max-width:330px;}
+
+  button{font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    border:1px solid var(--hueso);background:var(--hueso);color:var(--negro);
+    padding:15px 26px;border-radius:0;cursor:pointer;}
+  button.fantasma{background:transparent;color:var(--hueso);}
+
+  .barra{display:flex;border-top:1px solid var(--linea);background:var(--tinta);}
+  .barra input{flex:1;min-width:0;padding:17px 18px;border:0;
+    background:transparent;color:var(--hueso);
+    font-family:'Space Mono',monospace;font-size:19px;letter-spacing:.1em;}
+  .barra input::placeholder{color:#5A5A57;letter-spacing:.06em;font-size:14px;}
+  .barra input:focus{outline:0;}
+  .barra button{border:0;border-left:1px solid var(--linea);padding:0 24px;}
+
+  .pie{display:flex;justify-content:space-between;align-items:center;
+    gap:12px;padding:11px 18px;border-top:1px solid var(--linea);
+    font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:.18em;color:var(--tenue);}
+  .pie span[role=button]{cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+  .pie .on{color:var(--hueso);}
+
+  #estado{position:fixed;inset:0;z-index:99;display:none;
+    flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:30px;}
+  #estado h1{margin:0;font-size:min(15vw,58px);font-weight:700;
+    letter-spacing:.1em;line-height:1;}
+  #estado .quien{margin:18px 0 0;font-size:24px;font-weight:500;}
+  #estado .nota{margin:14px 0 0;font-family:'Space Mono',monospace;
+    font-size:12px;letter-spacing:.16em;opacity:.8;}
+  #estado.ver{display:flex;animation:entra .12s ease-out;}
+  @keyframes entra{from{opacity:0}to{opacity:1}}
+
+  #fallidos{padding:14px 18px;border-top:1px solid var(--malo);
+    background:#1A0A0D;font-family:'Space Mono',monospace;font-size:11px;
+    line-height:1.7;display:none;}
+  #fallidos b{color:var(--malo);letter-spacing:.16em;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marca">BLIND</div>
+  <div class="rol">CONTROL DE PUERTA</div>
+</header>
+
+<div class="conteo">
+  <div class="kpi"><b id="kDentro">—</b><span>ADENTRO</span></div>
+  <div class="kpi"><b id="kVend">—</b><span>VENDIDAS</span></div>
+  <div class="kpi"><b id="kSesion">0</b><span>ESTA SESIÓN</span></div>
+</div>
+
+<div class="visor">
+  <div id="lector"></div>
+  <div class="mira"><i></i></div>
+  <div class="placa" id="placa">
+    <p>Toca para encender la cámara. El navegador va a pedir permiso.</p>
+    <button onclick="arrancar()">Activar cámara</button>
+    <div class="cod" id="motivo"></div>
+  </div>
+</div>
+
+<div class="barra">
+  <input id="manual" inputmode="numeric" autocomplete="off"
+         placeholder="Número de entrada: 7">
+  <button onclick="manualEnviar()">Validar</button>
+</div>
+
+<div class="pie">
+  <span id="linterna" role="button" onclick="linterna()">LINTERNA</span>
+  <span id="conexion">LISTO</span>
+  <span role="button" onclick="pedirResumen()">ACTUALIZAR</span>
+</div>
+
+<div id="fallidos"></div>
+<div id="estado"></div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+/* ═══════════ CONFIGURACIÓN — LLENAR ESTAS DOS ═══════════ */
+var URL_APP = 'https://script.google.com/macros/s/AKfycbzVhEzz1lq8uP1wBxGth6E9CCky3XbIKV6bFXqasWgJuOAxA6OpxHjW4O1-nUMEY3M/exec';
+var CLAVE   = 'puerta-rvu171vked8pt1';
+var PREFIJO = 'BLIND';
+/* ════════════════════════════════════════════════════════ */
+
+var lector=null, activo=false, torch=false, wl=null;
+var ultimo='', ultimoT=0, sesion=0, nCb=0, ocupado=false;
+var fallidos=[];
+
+/* ---------- utilidades ---------- */
+function $(id){ return document.getElementById(id); }
+
+function normalizar(texto){
+  var t=String(texto).trim();
+  var m=t.match(/[?&]c=([^&#]+)/);
+  if(m) return decodeURIComponent(m[1]).toUpperCase();
+  if(/^\d{1,4}$/.test(t)) return PREFIJO+'-'+('0000'+t).slice(-4);
+  return t.toUpperCase();
+}
+
+/* ---------- llamada JSONP ---------- */
+function llamar(params, alVolver){
+  var cb='cb'+(++nCb), s=document.createElement('script'), listo=false;
+  var t=setTimeout(function(){ terminar({estado:'red'}); },12000);
+
+  function terminar(r){
+    if(listo) return; listo=true;
+    clearTimeout(t);
+    try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+    if(s.parentNode) s.parentNode.removeChild(s);
+    alVolver(r);
+  }
+  window[cb]=terminar;
+  s.onerror=function(){ terminar({estado:'red'}); };
+
+  var q='?jsonp='+cb+'&k='+encodeURIComponent(CLAVE);
+  for(var k in params) q+='&'+k+'='+encodeURIComponent(params[k]);
+  s.src=URL_APP+q;
+  document.body.appendChild(s);
+}
+
+/* ---------- validación ---------- */
+function validar(codigo){
+  if(ocupado||!codigo) return;
+  ocupado=true;
+  $('conexion').textContent='ENVIANDO';
+  llamar({c:codigo}, function(r){
+    ocupado=false;
+    if(r.estado==='red'){
+      $('conexion').textContent='SIN SEÑAL';
+      registrarFallo(codigo);
+      mostrar({estado:'malo',titulo:'SIN SEÑAL',
+               detalle:'Anotar el nombre en papel',extra:codigo});
+      return;
+    }
+    $('conexion').textContent='LISTO';
+    mostrar(r);
+    if(r.estado==='ok') pedirResumen();
+  });
+}
+
+function registrarFallo(codigo){
+  if(fallidos.indexOf(codigo)===-1) fallidos.push(codigo);
+  var d=$('fallidos');
+  d.style.display='block';
+  d.innerHTML='<b>SIN VALIDAR ('+fallidos.length+')</b><br>'+fallidos.join('<br>');
+}
+
+/* ---------- pantalla de estado ---------- */
+function mostrar(r){
+  var col={ok:'var(--ok)',repetido:'var(--alerta)',malo:'var(--malo)'}[r.estado]||'var(--negro)';
+  var d=$('estado');
+  d.style.background=col;
+  d.innerHTML='<h1>'+(r.titulo||'')+'</h1>'+
+    (r.detalle?'<p class="quien">'+r.detalle+'</p>':'')+
+    (r.extra?'<p class="nota">'+r.extra+'</p>':'');
+  d.classList.add('ver');
+  try{ navigator.vibrate(r.estado==='ok'?70:[60,70,60]); }catch(e){}
+  clearTimeout(mostrar._t);
+  mostrar._t=setTimeout(function(){ d.classList.remove('ver'); },
+                        r.estado==='ok'?1300:2600);
+}
+
+/* ---------- conteo en vivo ---------- */
+function pedirResumen(){
+  llamar({accion:'resumen'}, function(r){
+    if(r.estado==='resumen'){
+      $('kDentro').textContent=r.dentro;
+      $('kVend').textContent=r.total;
+    }
+  });
+}
+
+/* ---------- entrada manual ---------- */
+function manualEnviar(){
+  var i=$('manual'), v=i.value.trim();
+  if(!v) return;
+  i.value=''; i.blur();
+  validar(normalizar(v));
+}
+$('manual').addEventListener('keydown',function(e){
+  if(e.key==='Enter') manualEnviar();
+});
+
+/* ---------- cámara ---------- */
+function alLeer(texto){
+  var codigo=normalizar(texto), ahora=Date.now();
+  if(codigo===ultimo && ahora-ultimoT<5000) return;   // no releer el mismo QR
+  ultimo=codigo; ultimoT=ahora;
+  validar(codigo);
+}
+
+function arrancar(){
+  if(URL_APP.indexOf('http')!==0){
+    placa('Falta configurar','Abre el archivo y llena URL_APP y CLAVE.');
+    return;
+  }
+  if(!window.Html5Qrcode){ placa('No cargó el escáner','Revisa la conexión y recarga.'); return; }
+  $('placa').style.display='none';
+  lector=new Html5Qrcode('lector',{verbose:false});
+  lector.start({facingMode:'environment'},
+               {fps:10,qrbox:{width:250,height:250},aspectRatio:1.0},
+               alLeer,function(){})
+    .then(function(){ activo=true; despierto(); })
+    .catch(function(err){
+      placa('No se pudo abrir la cámara',
+            'Acepta el permiso cuando el navegador lo pida. Si ya lo negaste, '+
+            'habilítalo en los ajustes del navegador. Mientras tanto usa el '+
+            'campo de abajo escribiendo el número de la entrada.', err);
+    });
+}
+
+function placa(titulo,texto,err){
+  $('placa').style.display='flex';
+  $('placa').innerHTML='<p><b style="color:var(--hueso)">'+titulo+'</b><br><br>'+texto+'</p>'+
+    '<button onclick="arrancar()">Reintentar</button>'+
+    '<div class="cod">'+(err||'')+'</div>';
+}
+
+function linterna(){
+  if(!activo||!lector) return;
+  torch=!torch;
+  lector.applyVideoConstraints({advanced:[{torch:torch}]})
+    .then(function(){ $('linterna').className=torch?'on':''; })
+    .catch(function(){ $('linterna').textContent='SIN LINTERNA'; torch=false; });
+}
+
+/* ---------- pantalla siempre encendida ---------- */
+function despierto(){
+  if(!('wakeLock' in navigator)) return;
+  navigator.wakeLock.request('screen')
+    .then(function(s){ wl=s; s.addEventListener('release',function(){ wl=null; }); })
+    .catch(function(){});
+}
+document.addEventListener('visibilitychange',function(){
+  if(!wl && document.visibilityState==='visible' && activo) despierto();
+});
+
+/* ---------- arranque ---------- */
+window.addEventListener('load',function(){
+  if(URL_APP.indexOf('http')===0) pedirResumen();
+  else placa('Falta configurar','Abre el archivo y llena URL_APP y CLAVE.');
+});
+</script>
+</body>
+</html>
