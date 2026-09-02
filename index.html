@@ -153,7 +153,7 @@
 
 <div class="pie">
   <span id="linterna" role="button" onclick="linterna()">LINTERNA</span>
-  <span id="conexion">LISTO</span>
+  <span id="conexion" role="button" onclick="diagnostico()">LISTO</span>
   <span role="button" onclick="pedirResumen()">ACTUALIZAR</span>
 </div>
 
@@ -183,26 +183,105 @@ function normalizar(texto){
   return t.toUpperCase();
 }
 
-/* ---------- llamada JSONP ---------- */
-function llamar(params, alVolver){
-  var cb='cb'+(++nCb), s=document.createElement('script'), listo=false;
-  // Apps Script arranca en frío: la primera llamada puede tardar mucho
-  var t=setTimeout(function(){ terminar({estado:'red',causa:'tardó demasiado'}); },30000);
+/* ═══════════ TRANSPORTE ═══════════
+   fetch primero: devuelve la causa real de cualquier fallo.
+   JSONP de respaldo: por si el navegador bloquea la petición.
+   ═════════════════════════════════ */
 
-  function terminar(r){
-    if(listo) return; listo=true;
+function armarQuery(params){
+  var q = 'k=' + encodeURIComponent(CLAVE);
+  if (params.c)      q += '&c=' + encodeURIComponent(params.c);
+  if (params.accion) q += '&accion=' + encodeURIComponent(params.accion);
+  q += '&t=' + Date.now();
+  return q;
+}
+
+function llamar(params, alVolver){
+  var q = armarQuery(params);
+  var ctrl = window.AbortController ? new AbortController() : null;
+  var corto = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 30000);
+  var via = 'fetch';
+
+  if (!window.fetch){ porJsonp(q, alVolver, 'este navegador no tiene fetch'); return; }
+
+  fetch(URL_APP + '?api=1&' + q, {
+    method: 'GET',
+    redirect: 'follow',
+    signal: ctrl ? ctrl.signal : undefined
+  })
+  .then(function(res){
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    return res.text();
+  })
+  .then(function(txt){
+    clearTimeout(corto);
+    var r;
+    try { r = JSON.parse(txt); }
+    catch(e){ throw new Error('respuesta ilegible: ' + txt.slice(0,80)); }
+    r.via = via;
+    alVolver(r);
+  })
+  .catch(function(err){
+    clearTimeout(corto);
+    var causa = String(err && err.message ? err.message : err);
+    if (err && err.name === 'AbortError') causa = 'tardó más de 30 s';
+    porJsonp(q, alVolver, causa);
+  });
+}
+
+function porJsonp(q, alVolver, causaFetch){
+  var cb = 'cb' + (++nCb);
+  var s  = document.createElement('script');
+  var listo = false;
+  var t = setTimeout(function(){ fin({estado:'red', causa:'JSONP tardó demasiado'}); }, 30000);
+
+  function fin(r){
+    if(listo) return; listo = true;
     clearTimeout(t);
-    try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+    try { delete window[cb]; } catch(e){ window[cb] = undefined; }
     if(s.parentNode) s.parentNode.removeChild(s);
+    if(r && r.estado === 'red'){
+      r.causa = 'fetch: ' + causaFetch + ' | ' + (r.causa || 'JSONP falló');
+    } else if (r) {
+      r.via = 'jsonp';
+    }
     alVolver(r);
   }
-  window[cb]=terminar;
-  s.onerror=function(){ terminar({estado:'red',causa:'no cargó el script'}); };
-
-  var q='?jsonp='+cb+'&k='+encodeURIComponent(CLAVE);
-  for(var k in params) q+='&'+k+'='+encodeURIComponent(params[k]);
-  s.src=URL_APP+q;
+  window[cb] = fin;
+  s.onerror = function(){ fin({estado:'red', causa:'JSONP no cargó'}); };
+  s.src = URL_APP + '?jsonp=' + cb + '&' + q;
   document.body.appendChild(s);
+}
+
+/* ═══════════ DIAGNÓSTICO ═══════════ */
+function diagnostico(){
+  var d = $('estado');
+  d.style.background = '#0B0B0B';
+  d.innerHTML = '<h1 style="font-size:26px">DIAGNÓSTICO</h1>' +
+                '<p class="nota" id="diag">Probando…</p>';
+  d.classList.add('ver');
+  d.onclick = function(){ d.classList.remove('ver'); };
+
+  var lineas = [];
+  function pinta(){ $('diag').innerHTML = lineas.join('<br>'); }
+
+  lineas.push('URL: ' + URL_APP.slice(-24));
+  lineas.push('fetch disponible: ' + (window.fetch ? 'sí' : 'no'));
+  pinta();
+
+  llamar({accion:'resumen'}, function(r){
+    lineas.push('resumen → ' + (r.estado||'?') + ' vía ' + (r.via||'—'));
+    if(r.causa) lineas.push('  causa: ' + r.causa);
+    pinta();
+    llamar({c: PREFIJO + '-0001'}, function(r2){
+      lineas.push('validar → ' + (r2.estado||'?') + ' vía ' + (r2.via||'—'));
+      if(r2.titulo) lineas.push('  ' + r2.titulo + ' ' + (r2.extra||''));
+      if(r2.causa)  lineas.push('  causa: ' + r2.causa);
+      lineas.push('');
+      lineas.push('Toca para cerrar');
+      pinta();
+    });
+  });
 }
 
 /* ---------- validación ---------- */
@@ -217,9 +296,9 @@ function validar(codigo, reintento){
       if(!reintento){ validar(codigo, true); return; }
       $('conexion').textContent='SIN SEÑAL';
       registrarFallo(codigo);
-      mostrar({estado:'malo',titulo:'SIN SEÑAL',
+      mostrar({estado:'malo',titulo:'SIN CONEXIÓN',
                detalle:'Toca para reintentar',
-               extra:codigo+' · '+(r.causa||''),
+               extra:codigo+' · '+(r.causa||'sin causa'),
                reintentar:codigo});
       return;
     }
