@@ -260,13 +260,24 @@ function diagnostico(){
   d.innerHTML = '<h1 style="font-size:26px">DIAGNÓSTICO</h1>' +
                 '<p class="nota" id="diag">Probando…</p>';
   d.classList.add('ver');
-  d.onclick = function(){ d.classList.remove('ver'); };
+  d.onclick = function(e){
+    if(e.target && e.target.tagName === 'A') return;   // dejar pasar los enlaces
+    d.classList.remove('ver');
+  };
 
   var lineas = [];
   function pinta(){ $('diag').innerHTML = lineas.join('<br>'); }
 
-  lineas.push('URL: ' + URL_APP.slice(-24));
+  var uRes = URL_APP + '?api=1&' + armarQuery({accion:'resumen'});
+  var uVal = URL_APP + '?api=1&' + armarQuery({c: PREFIJO + '-0001'});
+
   lineas.push('fetch disponible: ' + (window.fetch ? 'sí' : 'no'));
+  lineas.push('');
+  lineas.push('<a href="' + uRes + '" target="_blank" ' +
+              'style="color:#fff">ABRIR URL DE RESUMEN</a>');
+  lineas.push('<a href="' + uVal + '" target="_blank" ' +
+              'style="color:#fff">ABRIR URL DE VALIDACIÓN</a>');
+  lineas.push('');
   pinta();
 
   llamar({accion:'resumen'}, function(r){
