@@ -177,7 +177,7 @@ function $(id){ return document.getElementById(id); }
 
 function normalizar(texto){
   var t=String(texto).trim();
-  var m=t.match(/[?&]c=([^&#]+)/);
+  var m=t.match(/[?&]codigo=([^&#]+)/) || t.match(/[?&]c=([^&#]+)/);
   if(m) return decodeURIComponent(m[1]).toUpperCase();
   if(/^\d{1,4}$/.test(t)) return PREFIJO+'-'+('0000'+t).slice(-4);
   return t.toUpperCase();
@@ -188,11 +188,14 @@ function normalizar(texto){
    JSONP de respaldo: por si el navegador bloquea la petición.
    ═════════════════════════════════ */
 
+/* Los nombres 'c', 'k' y 't' chocan con parámetros reservados de
+   Google: la petición se desvía a Drive y nunca llega al script.
+   Por eso van con nombres propios. */
 function armarQuery(params){
-  var q = 'k=' + encodeURIComponent(CLAVE);
-  if (params.c)      q += '&c=' + encodeURIComponent(params.c);
+  var q = 'clave=' + encodeURIComponent(CLAVE);
+  if (params.c)      q += '&codigo=' + encodeURIComponent(params.c);
   if (params.accion) q += '&accion=' + encodeURIComponent(params.accion);
-  q += '&t=' + Date.now();
+  q += '&ts=' + Date.now();
   return q;
 }
 
