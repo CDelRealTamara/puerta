@@ -55,8 +55,26 @@
   header{display:flex;align-items:baseline;justify-content:space-between;
     padding:16px 18px 12px;border-bottom:1px solid var(--linea);}
   .marca{font-weight:700;font-size:17px;letter-spacing:.34em;}
-  .rol{font-family:'Space Mono',monospace;font-size:10px;
-    letter-spacing:.26em;color:var(--tenue);}
+  .tabs{display:flex;gap:16px;font-family:'Space Mono',monospace;
+    font-size:10px;letter-spacing:.24em;color:#5A5A57;}
+  .tabs span{cursor:pointer;padding-bottom:3px;border-bottom:1px solid transparent;}
+  .tabs span.on{color:var(--hueso);border-bottom-color:var(--hueso);}
+
+  .venta{display:none;flex:1;flex-direction:column;gap:0;
+    border-top:1px solid var(--linea);}
+  .venta.ver{display:flex;}
+  .campo{border-bottom:1px solid var(--linea);padding:12px 18px 13px;}
+  .campo label{display:block;font-family:'Space Mono',monospace;font-size:9px;
+    letter-spacing:.24em;color:var(--tenue);margin-bottom:7px;}
+  .campo input,.campo select{width:100%;border:0;background:transparent;
+    color:var(--hueso);font-family:'Space Grotesk',sans-serif;font-size:17px;
+    padding:0;}
+  .campo input:focus,.campo select:focus{outline:0;}
+  .campo input::placeholder{color:#4A4A48;}
+  .campo select option{background:#141414;color:var(--hueso);}
+  .emitir{margin:18px;padding:18px;}
+  .ayuda{padding:0 18px 18px;font-family:'Space Mono',monospace;
+    font-size:10px;line-height:1.8;letter-spacing:.06em;color:#5A5A57;}
 
   .conteo{display:flex;border-bottom:1px solid var(--linea);}
   .kpi{flex:1;padding:14px 18px;border-right:1px solid var(--linea);}
@@ -65,6 +83,38 @@
     font-size:30px;font-weight:700;line-height:1;}
   .kpi span{display:block;font-family:'Space Mono',monospace;font-size:9px;
     letter-spacing:.24em;color:var(--tenue);margin-top:7px;}
+
+  .avance{height:2px;background:#1C1C1C;}
+  .avance i{display:block;height:100%;width:0;background:var(--hueso);
+    transition:width .5s cubic-bezier(.2,.7,.3,1);}
+
+  .aviso{display:none;padding:9px 18px;background:#1A1408;
+    border-bottom:1px solid #3A2E10;font-family:'Space Mono',monospace;
+    font-size:10px;letter-spacing:.14em;color:#D9B84A;}
+
+  .buscar{border-top:1px solid var(--linea);padding:12px 18px;display:none;}
+  .buscar.ver{display:block;}
+  .buscar input{width:100%;border:0;background:transparent;color:var(--hueso);
+    font-family:'Space Grotesk',sans-serif;font-size:17px;padding:4px 0 10px;}
+  .buscar input:focus{outline:0;}
+  .buscar input::placeholder{color:#4A4A48;}
+  #bres div{padding:11px 0;border-top:1px solid #1C1C1C;display:flex;
+    justify-content:space-between;align-items:center;gap:12px;
+    font-family:'Space Grotesk',sans-serif;font-size:15px;}
+  #bres small{font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:.1em;color:var(--tenue);}
+  #bres button{padding:9px 16px;font-size:11px;}
+
+  .cola{display:none;padding:8px 18px;background:#0E1A22;
+    border-top:1px solid #1D3140;font-family:'Space Mono',monospace;
+    font-size:10px;letter-spacing:.14em;color:#6FB3D9;}
+
+  .registro{padding:0 18px 10px;font-family:'Space Mono',monospace;
+    font-size:10px;letter-spacing:.1em;color:var(--tenue);
+    max-height:74px;overflow:hidden;}
+  .registro div{padding:3px 0;border-bottom:1px solid #171717;
+    display:flex;justify-content:space-between;gap:10px;}
+  .registro b{color:var(--hueso);font-weight:400;}
 
   .visor{position:relative;flex:1;min-height:250px;background:#000;overflow:hidden;}
   #lector{width:100%;height:100%;}
@@ -76,10 +126,17 @@
     width:34px;height:34px;border:2px solid var(--hueso);}
   .mira i::before{top:0;left:0;border-right:0;border-bottom:0;}
   .mira i::after{bottom:0;right:0;border-left:0;border-top:0;}
+  .mira u{position:absolute;left:8%;right:8%;height:1px;
+    background:linear-gradient(90deg,transparent,var(--hueso),transparent);
+    animation:barrer 2.6s ease-in-out infinite;opacity:.55;}
+  @keyframes barrer{0%,100%{top:6%}50%{top:94%}}
 
   .placa{position:absolute;inset:0;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:16px;padding:26px;
     text-align:center;background:var(--negro);}
+  .placa .sello{font-family:'Space Mono',monospace;font-size:11px;
+    letter-spacing:.34em;color:var(--tenue);border:1px solid var(--linea);
+    padding:7px 14px;}
   .placa p{margin:0;font-size:14px;line-height:1.55;color:var(--tenue);max-width:330px;}
   .placa .cod{font-family:'Space Mono',monospace;font-size:11px;
     color:#5A5A57;word-break:break-all;max-width:330px;}
@@ -113,6 +170,8 @@
   #estado .quien{margin:18px 0 0;font-size:24px;font-weight:500;}
   #estado .nota{margin:14px 0 0;font-family:'Space Mono',monospace;
     font-size:12px;letter-spacing:.16em;opacity:.8;}
+  #estado .undo{margin-top:26px;background:transparent;color:#fff;
+    border:1px solid rgba(255,255,255,.5);padding:13px 26px;font-size:12px;}
   #estado.ver{display:flex;animation:entra .12s ease-out;}
   @keyframes entra{from{opacity:0}to{opacity:1}}
 
@@ -126,7 +185,10 @@
 
 <header>
   <div class="marca">BLIND</div>
-  <div class="rol">CONTROL DE PUERTA</div>
+  <div class="tabs">
+    <span id="tabPuerta" class="on" onclick="modo('puerta')">PUERTA</span>
+    <span id="tabVentas" onclick="modo('ventas')">VENTAS</span>
+  </div>
 </header>
 
 <div class="conteo">
@@ -135,23 +197,69 @@
   <div class="kpi"><b id="kSesion">0</b><span>ESTA SESIÓN</span></div>
 </div>
 
+<div class="avance"><i id="barra"></i></div>
+<div class="aviso" id="aviso"></div>
+<div class="aviso" id="modoOffline" style="display:none;background:#0E1A22;
+     border-bottom-color:#1D3140;color:#6FB3D9;">SIN SEÑAL · validando con la lista descargada</div>
+
 <div class="visor">
   <div id="lector"></div>
-  <div class="mira"><i></i></div>
+  <div class="mira"><i><u></u></i></div>
   <div class="placa" id="placa">
-    <p>Toca para encender la cámara. El navegador va a pedir permiso.</p>
+    <div class="sello">11.09</div>
+    <p>Enciende la cámara para empezar a validar entradas.<br>
+       El navegador va a pedir permiso.</p>
     <button onclick="arrancar()">Activar cámara</button>
     <div class="cod" id="motivo"></div>
   </div>
 </div>
 
 <div class="barra">
-  <input id="manual" inputmode="numeric" autocomplete="off"
-         placeholder="Número de entrada: 7">
+  <input id="manual" autocomplete="off" autocapitalize="characters"
+         spellcheck="false" placeholder="Si el QR no lee, escribe el código">
   <button onclick="manualEnviar()">Validar</button>
 </div>
 
+<div class="venta" id="venta">
+  <div class="campo">
+    <label>NOMBRE COMPLETO</label>
+    <input id="vNombre" autocomplete="off" placeholder="Como en el documento">
+  </div>
+  <div class="campo">
+    <label>CORREO</label>
+    <input id="vCorreo" type="email" inputmode="email" autocomplete="off"
+           autocapitalize="off" spellcheck="false" placeholder="ahi llega la entrada">
+  </div>
+  <div class="campo">
+    <label>CÉDULA</label>
+    <input id="vCedula" inputmode="numeric" autocomplete="off" placeholder="Solo números">
+  </div>
+  <div class="campo">
+    <label>MEDIO DE PAGO</label>
+    <select id="vMedio">
+      <option>Nequi</option><option>Bre-B</option>
+      <option>Transferencia</option><option>Efectivo</option>
+    </select>
+  </div>
+  <button class="emitir" onclick="emitir()">Emitir entrada</button>
+  <div class="ayuda">
+    Confirmar que el pago llegó antes de emitir.<br>
+    El correo se manda al instante y no se puede deshacer.<br>
+    Revisar la dirección letra por letra.
+  </div>
+</div>
+
+<div class="buscar" id="buscar">
+  <input id="bq" autocomplete="off" placeholder="Buscar por nombre">
+  <div id="bres"></div>
+</div>
+
+<div class="registro" id="registro"></div>
+<div class="cola" id="cola"></div>
+<div class="cont" id="cont">Sin ingresos todavía</div>
+
 <div class="pie">
+  <span role="button" onclick="verBuscar()">BUSCAR</span>
   <span id="linterna" role="button" onclick="linterna()">LINTERNA</span>
   <span id="conexion" role="button" onclick="diagnostico()">LISTO</span>
   <span role="button" onclick="pedirResumen()">ACTUALIZAR</span>
@@ -168,9 +276,41 @@ var CLAVE   = 'puerta-rvu171vked8pt1';
 var PREFIJO = 'BLIND';
 /* ════════════════════════════════════════════════════════ */
 
+// ?rol=puerta -> interfaz reducida para quien recibe en la entrada.
+// Sin pestaña de ventas, sin diagnóstico, sin nada que confunda.
+var SOLO_PUERTA = /[?&]rol=puerta/.test(location.search);
+
 var lector=null, activo=false, torch=false, wl=null;
 var ultimo='', ultimoT=0, sesion=0, nCb=0, ocupado=false;
 var fallidos=[];
+
+/* Copia local de la lista: permite validar sin señal y responder
+   al instante en vez de esperar 1-2 s por cada persona. */
+var lista = {};        // codigo -> {n:nombre, d:dentro}
+var cola  = [];        // ingresos pendientes de sincronizar
+var listaTS = 0;
+
+function guardar(){
+  try{
+    localStorage.setItem('blind_estado', JSON.stringify({
+      lista:lista, cola:cola, total:total, listaTS:listaTS,
+      reg:$('registro').innerHTML, fallidos:fallidos
+    }));
+  }catch(e){}
+}
+function recuperar(){
+  try{
+    var d = JSON.parse(localStorage.getItem('blind_estado')||'{}');
+    if(d.lista) lista = d.lista;
+    if(d.cola)  cola  = d.cola;
+    if(d.total) { total = d.total; $('kSesion').textContent = total; }
+    if(d.listaTS) listaTS = d.listaTS;
+    if(d.reg) $('registro').innerHTML = d.reg;
+    if(d.fallidos && d.fallidos.length){
+      fallidos = d.fallidos; registrarFallo(fallidos[0]);
+    }
+  }catch(e){}
+}
 
 /* ---------- utilidades ---------- */
 function $(id){ return document.getElementById(id); }
@@ -179,8 +319,10 @@ function normalizar(texto){
   var t=String(texto).trim();
   var m=t.match(/[?&]codigo=([^&#]+)/) || t.match(/[?&]c=([^&#]+)/);
   if(m) return decodeURIComponent(m[1]).toUpperCase();
-  if(/^\d{1,4}$/.test(t)) return PREFIJO+'-'+('0000'+t).slice(-4);
-  return t.toUpperCase();
+  t=t.toUpperCase().replace(/\s+/g,'');
+  // "0007-XKD9" -> "BLIND-0007-XKD9"
+  if(/^\d{1,4}-[A-Z0-9]{2,6}$/.test(t)) return PREFIJO+'-'+t;
+  return t;
 }
 
 /* ═══════════ TRANSPORTE ═══════════
@@ -195,6 +337,9 @@ function armarQuery(params){
   var q = 'clave=' + encodeURIComponent(CLAVE);
   if (params.c)      q += '&codigo=' + encodeURIComponent(params.c);
   if (params.accion) q += '&accion=' + encodeURIComponent(params.accion);
+  ['nombre','correo','cedula','medio','forzar','q'].forEach(function(k){
+    if (params[k]) q += '&' + k + '=' + encodeURIComponent(params[k]);
+  });
   q += '&ts=' + Date.now();
   return q;
 }
@@ -301,6 +446,27 @@ function diagnostico(){
 /* ---------- validación ---------- */
 function validar(codigo, reintento){
   if(ocupado||!codigo) return;
+
+  // Con la lista descargada se decide al instante y sin señal.
+  if(!reintento && lista[codigo]){
+    var e = lista[codigo];
+    if(e.d){
+      mostrar({estado:'repetido', titulo:'YA REGISTRADA', detalle:e.n,
+               extra:'Si salió y volvió, déjalo pasar. Si no, pedir documento.'});
+      return;
+    }
+    e.d = true;
+    mostrar({estado:'ok', titulo:'ADELANTE', detalle:e.n,
+             extra:codigo, deshacer:codigo});
+    encolar(codigo);
+    return;
+  }
+  if(!reintento && Object.keys(lista).length && !lista[codigo]){
+    mostrar({estado:'malo', titulo:'NO PASA', detalle:'Este código no existe',
+             extra:'Pedir el comprobante de pago'});
+    return;
+  }
+
   ocupado=true;
   $('conexion').textContent = reintento ? 'REINTENTANDO' : 'ENVIANDO';
   llamar({c:codigo}, function(r){
@@ -327,14 +493,18 @@ function quitarFallo(codigo){
   if(i>-1) fallidos.splice(i,1);
   var d=$('fallidos');
   if(!fallidos.length){ d.style.display='none'; return; }
-  d.innerHTML='<b>SIN VALIDAR ('+fallidos.length+')</b><br>'+fallidos.join('<br>');
+  d.innerHTML='<b>SIN VALIDAR ('+fallidos.length+')</b> ' +
+              '<span style="color:#8A8A87">anotar el nombre en papel</span><br>' +
+              fallidos.join('<br>');
 }
 
 function registrarFallo(codigo){
   if(fallidos.indexOf(codigo)===-1) fallidos.push(codigo);
   var d=$('fallidos');
   d.style.display='block';
-  d.innerHTML='<b>SIN VALIDAR ('+fallidos.length+')</b><br>'+fallidos.join('<br>');
+  d.innerHTML='<b>SIN VALIDAR ('+fallidos.length+')</b> ' +
+              '<span style="color:#8A8A87">anotar el nombre en papel</span><br>' +
+              fallidos.join('<br>');
 }
 
 /* ---------- pantalla de estado ---------- */
@@ -346,15 +516,257 @@ function mostrar(r){
     (r.detalle?'<p class="quien">'+r.detalle+'</p>':'')+
     (r.extra?'<p class="nota">'+r.extra+'</p>':'');
   d.classList.add('ver');
-  d.onclick = r.reintentar ? function(){
+  if (r.deshacer){
+    d.innerHTML += '<button class="undo" onclick="deshacer(\'' +
+                   r.deshacer + '\')">Deshacer</button>';
+  }
+  d.onclick = function(e){
+    if(e.target && e.target.tagName === 'BUTTON') return;
+    if(r.reintentar){
+      d.classList.remove('ver');
+      quitarFallo(r.reintentar);
+      validar(r.reintentar);
+      return;
+    }
     d.classList.remove('ver');
-    quitarFallo(r.reintentar);
-    validar(r.reintentar);
-  } : null;
+  };
   try{ navigator.vibrate(r.estado==='ok'?70:[60,70,60]); }catch(e){}
+  pitar(r.estado==='ok');
   clearTimeout(mostrar._t);
   mostrar._t=setTimeout(function(){ d.classList.remove('ver'); },
-                        r.estado==='ok'?1300:4000);
+                        r.estado==='ok' ? (r.deshacer?2600:1300) : 4000);
+}
+
+/* ---------- sonido ----------
+   Con música fuerte la vibración no se siente. El contexto de
+   audio se crea al tocar "Activar cámara": iOS lo exige. */
+var audio=null;
+function abrirAudio(){
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(AC && !audio) audio = new AC();
+    if(audio && audio.state === 'suspended') audio.resume();
+  }catch(e){}
+}
+function pitar(ok){
+  if(!audio) return;
+  try{
+    var t = audio.currentTime;
+    var notas = ok ? [880] : [320, 240];
+    notas.forEach(function(f, i){
+      var o = audio.createOscillator(), g = audio.createGain();
+      o.type='square'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001, t + i*0.16);
+      g.gain.exponentialRampToValueAtTime(0.25, t + i*0.16 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i*0.16 + 0.14);
+      o.connect(g); g.connect(audio.destination);
+      o.start(t + i*0.16); o.stop(t + i*0.16 + 0.15);
+    });
+  }catch(e){}
+}
+
+/* ---------- cambio de modo ---------- */
+var enVentas=false, forzar=false;
+
+function modo(cual){
+  enVentas = (cual === 'ventas');
+  $('tabPuerta').className = enVentas ? '' : 'on';
+  $('tabVentas').className = enVentas ? 'on' : '';
+  $('venta').className = enVentas ? 'venta ver' : 'venta';
+  document.querySelector('.visor').style.display = enVentas ? 'none' : '';
+  document.querySelector('.barra').style.display = enVentas ? 'none' : '';
+  $('registro').style.display = enVentas ? 'none' : '';
+  $('cont').style.display = enVentas ? 'none' : '';
+  if (enVentas && lector && activo){
+    try { lector.stop().then(function(){ activo=false; }); } catch(e){}
+    $('placa').style.display='flex';
+  }
+  if (!enVentas) forzar = false;
+}
+
+/* ---------- emitir una venta ---------- */
+function emitir(){
+  if (ocupado) return;
+  var datos = {
+    accion:'alta',
+    nombre: $('vNombre').value.trim(),
+    correo: $('vCorreo').value.trim(),
+    cedula: $('vCedula').value.trim(),
+    medio : $('vMedio').value
+  };
+  if (forzar) datos.forzar = '1';
+  if (!datos.nombre || !datos.correo){
+    mostrar({estado:'malo', titulo:'FALTAN DATOS',
+             detalle:'Nombre y correo son obligatorios'});
+    return;
+  }
+  ocupado = true;
+  $('conexion').textContent='EMITIENDO';
+  llamar(datos, function(r){
+    ocupado = false;
+    $('conexion').textContent = (r.estado==='red') ? 'SIN CONEXIÓN' : 'LISTO';
+    if (r.estado==='red'){
+      // La emisión pudo haberse completado en el servidor antes de
+      // caerse la conexión. Decir que no se emitió provoca duplicados.
+      $('modoOffline').style.display='block';
+      mostrar({estado:'repetido', titulo:'SIN CONFIRMAR',
+               detalle:'Puede que sí se haya emitido',
+               extra:'Toca ACTUALIZAR y revisa antes de reintentar'});
+      return;
+    }
+    if (r.duplicado){
+      forzar = true;
+      mostrar({estado:'repetido', titulo:r.titulo,
+               detalle:r.detalle, extra:'Toca Emitir otra vez para confirmar'});
+      return;
+    }
+    forzar = false;
+    mostrar(r);
+    if (r.estado==='ok'){
+      ['vNombre','vCorreo','vCedula'].forEach(function(id){ $(id).value=''; });
+      anotar(r.detalle);
+      pedirResumen();
+    }
+  });
+}
+
+// Cambiar cualquier dato anula la confirmación de duplicado pendiente
+['vNombre','vCorreo','vCedula','vMedio'].forEach(function(id){
+  var el = $(id);
+  if(el) el.addEventListener('input', function(){ forzar = false; });
+});
+// Enter en cédula emite, para no cerrar el teclado
+(function(){
+  var c = $('vCedula');
+  if(c) c.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); c.blur(); emitir(); }
+  });
+})();
+
+/* ---------- búsqueda por nombre ---------- */
+function verBuscar(){
+  var b = $('buscar');
+  var abierto = b.className.indexOf('ver') > -1;
+  b.className = abierto ? 'buscar' : 'buscar ver';
+  if(!abierto) $('bq').focus(); else $('bres').innerHTML='';
+}
+
+var tBuscar=null;
+function alBuscar(){
+  clearTimeout(tBuscar);
+  var q = $('bq').value.trim();
+  if(q.length < 2){ $('bres').innerHTML=''; return; }
+  tBuscar = setTimeout(function(){
+    // Primero contra la copia local: instantáneo y sin señal
+    var loc = [], qn = sinTildes(q.toLowerCase());
+    for(var c in lista){
+      if(sinTildes(String(lista[c].n).toLowerCase()).indexOf(qn) > -1){
+        loc.push({codigo:c, nombre:lista[c].n, dentro:lista[c].d});
+        if(loc.length >= 10) break;
+      }
+    }
+    if(loc.length){ pintarBusqueda(loc); return; }
+    llamar({accion:'buscar', q:q}, function(r){
+      if(r.estado==='busqueda') pintarBusqueda(r.hits);
+      else $('bres').innerHTML='<div>Sin resultados</div>';
+    });
+  }, 280);
+}
+
+function sinTildes(t){
+  return t.replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i')
+          .replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n');
+}
+
+function pintarBusqueda(hits){
+  if(!hits.length){ $('bres').innerHTML='<div>Sin resultados</div>'; return; }
+  var html='';
+  hits.forEach(function(x){
+    html += '<div><span>' + x.nombre +
+            '<br><small>' + x.codigo + (x.dentro?' · YA ENTRÓ':'') + '</small></span>' +
+            '<button onclick="desdeBusqueda(\'' + x.codigo + '\')">' +
+            (x.dentro?'Ver':'Dejar entrar') + '</button></div>';
+  });
+  $('bres').innerHTML = html;
+}
+
+function desdeBusqueda(codigo){
+  $('bq').value=''; $('bres').innerHTML='';
+  $('buscar').className='buscar';
+  validar(codigo);
+}
+
+/* ---------- lista local y cola ---------- */
+function bajarLista(){
+  llamar({accion:'lista'}, function(r){
+    if(r.estado!=='lista') return;
+    var nueva = {};
+    r.filas.forEach(function(f){ nueva[f[0]] = {n:f[1], d:!!f[2]}; });
+    // No pisar lo que aún está en cola
+    cola.forEach(function(c){ if(nueva[c]) nueva[c].d = true; });
+    lista = nueva; listaTS = Date.now();
+    $('modoOffline').style.display='none';
+    guardar();
+  });
+}
+
+function encolar(codigo){
+  if(cola.indexOf(codigo)===-1) cola.push(codigo);
+  pintarCola(); guardar(); sincronizar();
+}
+
+function pintarCola(){
+  var e = $('cola');
+  if(!cola.length){ e.style.display='none'; return; }
+  e.style.display='block';
+  e.textContent = 'SIN SINCRONIZAR: ' + cola.length;
+}
+
+var sincronizando=false;
+function sincronizar(){
+  if(sincronizando || !cola.length) return;
+  sincronizando = true;
+  var codigo = cola[0];
+  llamar({c:codigo}, function(r){
+    sincronizando = false;
+    if(r.estado==='red'){ setTimeout(sincronizar, 6000); return; }
+    cola.shift(); pintarCola(); guardar();
+    if(cola.length) sincronizar();
+  });
+}
+setInterval(function(){ if(cola.length) sincronizar(); }, 8000);
+setInterval(function(){ if(!cola.length) bajarLista(); }, 90000);
+
+/* ---------- deshacer un ingreso ---------- */
+function deshacer(codigo){
+  clearTimeout(mostrar._t);
+  $('estado').classList.remove('ver');
+  ocupado = false;
+  if(lista[codigo]) lista[codigo].d = false;
+  var ic = cola.indexOf(codigo);
+  if(ic > -1){ cola.splice(ic,1); pintarCola(); }
+  guardar();
+  llamar({accion:'deshacer', c:codigo}, function(r){
+    if(r.estado==='red'){
+      mostrar({estado:'malo', titulo:'SIN CONEXIÓN',
+               detalle:'No se pudo deshacer'});
+      return;
+    }
+    if(total>0) { total--; $('kSesion').textContent = total; }
+    mostrar(r);
+    pedirResumen();
+  });
+}
+
+/* ---------- registro visible ---------- */
+function anotar(nombre){
+  var d = new Date();
+  var hora = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+  var fila = document.createElement('div');
+  fila.innerHTML = '<b>' + (nombre||'—') + '</b><span>' + hora + '</span>';
+  var r = $('registro');
+  r.insertBefore(fila, r.firstChild);
+  while (r.children.length > 4) r.removeChild(r.lastChild);
 }
 
 /* ---------- conteo en vivo ---------- */
@@ -363,6 +775,15 @@ function pedirResumen(){
     if(r.estado==='resumen'){
       $('kDentro').textContent=r.dentro;
       $('kVend').textContent=r.total;
+      $('barra').style.width =
+        (r.total ? Math.min(100, r.dentro/r.total*100) : 0) + '%';
+      var avisos=[];
+      if (!SOLO_PUERTA){
+        if (r.pendientes) avisos.push(r.pendientes + ' sin verificar');
+        if (r.cuota >= 0 && r.cuota < 25) avisos.push('quedan ' + r.cuota + ' correos hoy');
+        $('aviso').textContent = avisos.join(' · ');
+        $('aviso').style.display = avisos.length ? 'block' : 'none';
+      }
       $('conexion').textContent='LISTO';
     } else if(r.estado==='red'){
       $('conexion').textContent='SIN CONEXIÓN';
@@ -395,6 +816,7 @@ function arrancar(){
     return;
   }
   if(!window.Html5Qrcode){ placa('No cargó el escáner','Revisa la conexión y recarga.'); return; }
+  abrirAudio();
   $('placa').style.display='none';
   lector=new Html5Qrcode('lector',{verbose:false});
   lector.start({facingMode:'environment'},
@@ -437,9 +859,21 @@ document.addEventListener('visibilitychange',function(){
 
 /* ---------- arranque ---------- */
 window.addEventListener('load',function(){
+  if(SOLO_PUERTA){
+    $('tabVentas').style.display='none';
+    $('tabPuerta').textContent='PUERTA';
+    $('conexion').onclick=null;
+    $('conexion').removeAttribute('role');
+    var act=document.querySelector('.pie span[onclick*="pedirResumen"]');
+    if(act) act.style.display='none';
+    $('aviso').style.display='none';
+  }
+  recuperar();
+  pintarCola();
   if(URL_APP.indexOf('http')===0){
     $('conexion').textContent='CONECTANDO';
     pedirResumen();
+    bajarLista();
   }
   else placa('Falta configurar','Abre el archivo y llena URL_APP y CLAVE.');
 });
